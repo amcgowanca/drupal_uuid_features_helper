@@ -1,0 +1,6 @@
+name = UUID Features Helper
+description = Helper module that assists in ensuring exported content is portable.
+core = 7.x
+version 7.x-0.1
+
+dependencies[] = uuid_features

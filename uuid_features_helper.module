@@ -1,0 +1,55 @@
+<?php
+/**
+ * @file
+ */
+
+/**
+ * Implements hook_uuid_node_features_export_render_alter().
+ */
+function mymodule_uuid_node_features_export_render_alter(&$export, $node, $module) {
+  if (isset($export->panelizer['page_manager'])) {
+    foreach ($export->panelizer['page_manager']->display->content as $k => &$v) {
+      $item = &$export->panelizer['page_manager']->display->content[$k];
+      switch ($item->type) {
+        case 'node_terms':
+          $vocabulary = taxonomy_vocabulary_load($item->configuration['vid']);
+          if ($vocabulary) {
+            $item->configuration['vocabulary_machine_name'] = $vocabulary->machine_name;
+            unset($item->configuration['vid']);
+          }
+          break;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_uuid_node_features_rebuild_alter().
+ */
+function mymodule_uuid_node_features_rebuild_alter(&$node, $module) {
+  // Panelizer's entity plugin static cache must be reset. This is because
+  // the entity plugin handlers is stale during a regular site installation. The
+  // plugin handlers know of the entity types but not the concrete bundles and therefore
+  // must be reset prior to them being used as the "is panelized" will regularly fail
+  // until the static cache is reset.
+  drupal_static_reset('panelizer_entity_plugin_get_handler');
+
+  if (isset($node->panelizer['page_manager'])) {
+    $node->panelizer['page_manager'] = (object) $node->panelizer['page_manager'];
+    foreach ($node->panelizer['page_manager']->display['content'] as $k => &$v) {
+      $item = &$node->panelizer['page_manager']->display['content'][$k];
+      $item = (object) $item;
+      switch ($item->type) {
+        case 'node_terms':
+          if (isset($item->configuration['vocabulary_machine_name'])) {
+            $vocabulary = taxonomy_vocabulary_machine_name_load($item->configuration['vocabulary_machine_name']);
+            if ($vocabulary) {
+              $item->configuration['vid'] = $vocabulary->vid;
+              unset($item->configuration['vocabulary_machine_name']);
+            }
+          }
+          break;
+      }
+    }
+  }
+}
