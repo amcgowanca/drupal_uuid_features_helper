@@ -3,4 +3,6 @@ description = Helper module that assists in ensuring exported content is portabl
 core = 7.x
 version 7.x-0.1
 
+dependencies[] = ctools
 dependencies[] = uuid_features
+

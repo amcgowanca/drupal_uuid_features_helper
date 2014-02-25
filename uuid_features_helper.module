@@ -4,9 +4,18 @@
  */
 
 /**
+ * Implements hook_ctools_plugin_directory()
+ */
+function uuid_features_helper_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/' . $plugin_type;
+  }
+}
+
+/**
  * Implements hook_uuid_node_features_export_render_alter().
  */
-function mymodule_uuid_node_features_export_render_alter(&$export, $node, $module) {
+function uuid_features_helper_uuid_node_features_export_render_alter(&$export, $node, $module) {
   if (isset($export->panelizer['page_manager'])) {
     foreach ($export->panelizer['page_manager']->display->content as $k => &$v) {
       $item = &$export->panelizer['page_manager']->display->content[$k];
@@ -21,12 +30,23 @@ function mymodule_uuid_node_features_export_render_alter(&$export, $node, $modul
       }
     }
   }
+
+  if ('webform' == $export->type && isset($node->webform)) {
+    $export->webform['node_uuid'] = $node->uuid;
+    unset($export->webform['nid']);
+
+    foreach ($export->webform['components'] as $k => &$v) {
+      $component = &$export->webform['components'][$k];
+      $component['node_uuid'] = $node->uuid;
+      unset($component['nid']);
+    }
+  }
 }
 
 /**
  * Implements hook_uuid_node_features_rebuild_alter().
  */
-function mymodule_uuid_node_features_rebuild_alter(&$node, $module) {
+function uuid_features_helper_uuid_node_features_rebuild_alter(&$node, $module) {
   // Panelizer's entity plugin static cache must be reset. This is because
   // the entity plugin handlers is stale during a regular site installation. The
   // plugin handlers know of the entity types but not the concrete bundles and therefore
@@ -50,6 +70,17 @@ function mymodule_uuid_node_features_rebuild_alter(&$node, $module) {
           }
           break;
       }
+    }
+  }
+
+  if ('webform' == $node->type && isset($node->webform)) {
+    $node->webform['nid'] = $node->nid;
+    unset($node->webform['node_uuid']);
+
+    foreach ($node->webform['components'] as $k => &$v) {
+      $component = &$node->webform['components'][$k];
+      $component['nid'] = $node->nid;
+      unset($component['node_uuid']);
     }
   }
 }
