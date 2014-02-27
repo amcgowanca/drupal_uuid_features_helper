@@ -47,7 +47,7 @@ function uuid_features_helper_form_node_form_alter(&$form, $form_state, $form_id
 /**
  * Implements hook_form_BASE_ID_form_alter().
  */
-function uuid_features_helper_form_vocabulary_form_term_alter(&$form, $form_state, $form_id) {
+function uuid_features_helper_form_taxonomy_form_term_alter(&$form, $form_state, $form_id) {
   $term = $form_state['term'];
   if (empty($term->uuid)) {
     return;
