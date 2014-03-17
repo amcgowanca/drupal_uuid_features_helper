@@ -4,67 +4,6 @@
  */
 
 /**
- * Implements hook_ctools_plugin_directory()
- */
-function uuid_features_helper_ctools_plugin_directory($owner, $plugin_type) {
-  if ($owner == 'ctools' && $plugin_type == 'content_types') {
-    return 'plugins/' . $plugin_type;
-  }
-}
-
-/**
- * Implements hook_permission().
- */
-function uuid_features_helper_permission() {
-  return array(
-    'view entity uuid inline' => array(
-      'title' => t('View an entity uuid inline'),
-      'description' => t('Allows users to view an entity uuid inline to the edit form.'),
-    ),
-  );
-}
-
-/**
- * Implements hook_form_BASE_ID_form_alter().
- */
-function uuid_features_helper_form_node_form_alter(&$form, $form_state, $form_id) {
-  $node = $form_state['node'];
-  if (empty($node->uuid)) {
-    return;
-  }
-
-  if (user_access('view entity uuid inline')) {
-    $uuid_info = array(
-      '#type' => 'markup',
-      '#markup' => t('UUID: @uuid', array('@uuid' => $node->uuid)),
-      '#prefix' => '<small>',
-      '#suffix' => '</small>',
-    );
-    $form['title']['#field_suffix'] = drupal_render($uuid_info);
-  }
-}
-
-/**
- * Implements hook_form_BASE_ID_form_alter().
- */
-function uuid_features_helper_form_taxonomy_form_term_alter(&$form, $form_state, $form_id) {
-  $term = $form_state['term'];
-  if (empty($term->uuid)) {
-    return;
-  }
-
-  if (user_access('view entity uuid inline')) {
-    $uuid_info = array(
-      '#type' => 'markup',
-      '#markup' => t('UUID: @uuid', array('@uuid' => $term->uuid)),
-      '#prefix' => '<small>',
-      '#suffix' => '</small>',
-    );
-    $form['name']['#field_suffix'] = drupal_render($uuid_info);
-  }
-}
-
-/**
  * Implements hook_uuid_node_features_export_render_alter().
  */
 function uuid_features_helper_uuid_node_features_export_render_alter(&$export, $node, $module) {
