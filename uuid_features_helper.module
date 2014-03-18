@@ -82,9 +82,12 @@ function uuid_features_helper_conditional_fields_features_rebuild_alter(&$dep_se
   foreach($dep_setting as $dep_setting_name => $dep_setting_info) {
     foreach($dep_setting_info['options']['value'] as $condition_name => $condition_info) {
       if(isset($condition_info['uuid'])) {
-        $term = entity_uuid_load('taxonomy_term', $condition_info['uuid']);
-        $info['dependees'][$field_name]['options']['value'][$condition_name]['uuid'] = $term->uuid;
-        unset($info['dependees'][$field_name]['options']['value'][$condition_name]['tid']);
+        $term = entity_uuid_load('taxonomy_term', array($condition_info['uuid']));
+        foreach($term as $term_instance) {
+          $dep_setting[$dep_setting_name]['options']['value'][$condition_name]['tid'] = $term_instance->tid;
+          unset($dep_setting[$dep_setting_name]['options']['value'][$condition_name]['uuid']);
+        }
+
       }
     }
   }
@@ -95,13 +98,13 @@ function uuid_features_helper_conditional_fields_features_rebuild_alter(&$dep_se
  */
 
 function uuid_features_helper_conditional_fields_features_export_render_alter(&$info) {
-  foreach($info['dependants'] as $field_name => $field_info) {
+  foreach($info['dependents'] as $field_name => $field_info) {
     foreach($field_info as $field_reference_id => $field_reference_info) {
       foreach($field_reference_info['options']['value'] as $condition_name => $condition_info) {
         if(isset($condition_info['tid'])) {
           $term = taxonomy_term_load($condition_info['tid']);
-          $info['dependants'][$field_name]['options']['value'][$condition_name]['uuid'] = $term->uuid;
-          unset($info['dependants'][$field_name]['options']['value'][$condition_name]['tid']);
+          $info['dependents'][$field_name][$field_reference_id]['options']['value'][$condition_name]['uuid'] = $term->uuid;
+          unset($info['dependents'][$field_name][$field_reference_id]['options']['value'][$condition_name]['tid']);
         }
       }
     }
