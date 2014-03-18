@@ -1,0 +1,25 @@
+diff --git a/.DS_Store b/.DS_Store
+index f3bb0fb..f53776a 100644
+Binary files a/.DS_Store and b/.DS_Store differ
+diff --git a/includes/conditional_fields.features.inc b/includes/conditional_fields.features.inc
+index c5bb456..ec3646a 100644
+--- a/includes/conditional_fields.features.inc
++++ b/includes/conditional_fields.features.inc
+@@ -51,7 +51,7 @@ function conditional_fields_features_export_render($module_name, $data, $export
+ 
+     if (isset($dependencies[$entity]) && isset($dependencies[$entity][$bundle])) {
+       $info = $dependencies[$entity][$bundle];
+-      
++      drupal_alter('conditional_fields_features_export_render', $info);
+       foreach ($info['dependents'] as $dependent_field_name => $dependees) {
+         foreach ($dependees as $dependee) {
+           $code[] = '';
+@@ -96,7 +96,7 @@ function conditional_fields_features_rebuild($module) {
+         foreach ($dependencies[$field['entity']][$field['bundle']] as $dependancy_type => $field_dep_settings) {
+           if ($dependancy_type == 'dependees' && !empty($field_dep_settings)) {
+             foreach ($field_dep_settings as $dep_setting) {
+-              
++              drupal_alter('conditional_fields_features_rebuild', $dep_setting);
+               foreach ($dep_setting as $id => $dep_settings) {
+                 $deps_to_remove[$id] = $id;
+               }
