@@ -78,16 +78,13 @@ function uuid_features_helper_uuid_node_features_rebuild_alter(&$node, $module) 
  * Implements hook_conditional_fields_features_rebuild_alter().
  */
 
-function uuid_features_helper_conditional_fields_features_rebuild_alter(&$dep_setting) {
-  foreach($dep_setting as $dep_setting_name => $dep_setting_info) {
-    foreach($dep_setting_info['options']['value'] as $condition_name => $condition_info) {
-      if(isset($condition_info['uuid'])) {
-        $term = entity_uuid_load('taxonomy_term', array($condition_info['uuid']));
-        foreach($term as $term_instance) {
-          $dep_setting[$dep_setting_name]['options']['value'][$condition_name]['tid'] = $term_instance->tid;
-          unset($dep_setting[$dep_setting_name]['options']['value'][$condition_name]['uuid']);
-        }
-
+function uuid_features_helper_conditional_fields_features_rebuild_alter(&$defaults) {
+  foreach($defaults as $default_name => $default_info) {
+    foreach($default_info['options']['value'] as $condition_name => $condition_info) {
+      $term = entity_uuid_load('taxonomy_term', array($condition_info['uuid']));
+      foreach($term as $term_instance) {
+        $defaults[$default_name]['options']['value'][$condition_name]['tid'] = $term_instance->tid;
+        unset($defaults[$default_name]['options']['value'][$condition_name]['uuid']);
       }
     }
   }
