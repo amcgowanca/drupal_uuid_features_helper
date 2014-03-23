@@ -63,15 +63,47 @@ function uuid_features_helper_uuid_node_features_rebuild_alter(&$node, $module) 
       }
     }
   }
-
   if ('webform' == $node->type && isset($node->webform)) {
     $node->webform['nid'] = $node->nid;
     unset($node->webform['node_uuid']);
-
     foreach ($node->webform['components'] as $k => &$v) {
       $component = &$node->webform['components'][$k];
       $component['nid'] = $node->nid;
       unset($component['node_uuid']);
+    }
+  }
+}
+
+/**
+ * Implements hook_conditional_fields_features_rebuild_alter().
+ */
+
+function uuid_features_helper_conditional_fields_features_rebuild_alter(&$defaults) {
+  foreach($defaults as $default_name => $default_info) {
+    foreach($default_info['options']['value'] as $condition_name => $condition_info) {
+      $term = entity_uuid_load('taxonomy_term', array($condition_info['uuid']));
+      foreach($term as $term_instance) {
+        $defaults[$default_name]['options']['value'][$condition_name]['tid'] = $term_instance->tid;
+        unset($defaults[$default_name]['options']['value'][$condition_name]['uuid']);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_conditional_fields_features_export_render_alter().
+ */
+
+function uuid_features_helper_conditional_fields_features_export_render_alter(&$info) {
+  foreach($info['dependents'] as $field_name => $field_info) {
+    foreach($field_info as $field_reference_id => $field_reference_info) {
+      foreach($field_reference_info['options']['value'] as $condition_name => $condition_info) {
+        if(isset($condition_info['tid'])) {
+          $term = taxonomy_term_load($condition_info['tid']);
+          $info['dependents'][$field_name][$field_reference_id]['options']['value'][$condition_name]['uuid'] = $term->uuid;
+          unset($info['dependents'][$field_name][$field_reference_id]['options']['value'][$condition_name]['tid']);
+        }
+      }
     }
   }
 }
