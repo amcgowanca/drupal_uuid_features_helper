@@ -78,12 +78,13 @@ function uuid_features_helper_uuid_node_features_rebuild_alter(&$node, $module) 
  * Implements hook_conditional_fields_features_rebuild_alter().
  */
 
-function uuid_features_helper_conditional_fields_features_rebuild_alter(&$defaults) {
-  foreach($defaults as $default_name => $default_info) {
-    foreach($default_info['options']['value'] as $condition_name => $condition_info) {
-      $term = entity_uuid_load('taxonomy_term', array($condition_info['uuid']));
-      foreach($term as $term_instance) {
-        $defaults[$default_name]['options']['value'][$condition_name]['tid'] = $term_instance->tid;
+function uuid_features_helper_conditional_fields_features_rebuild_alter($defaults) {
+  foreach ($defaults as $name => $default_inf) {
+    foreach ($default_info['options']['value'] as $condition_name => $conditional_info) {
+      $terms = entity_uuid_load('taxonomy_term', array($condition_info['uuid']));
+      $term = array_shift($terms);
+      if ($term) {
+        $defaults[$default_name]['options']['value'][$condition_name]['tid'] = $term->tid;
         unset($defaults[$default_name]['options']['value'][$condition_name]['uuid']);
       }
     }
