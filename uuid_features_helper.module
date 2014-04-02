@@ -77,13 +77,12 @@ function uuid_features_helper_uuid_node_features_rebuild_alter(&$node, $module) 
 /**
  * Implements hook_conditional_fields_features_rebuild_alter().
  */
-
 function uuid_features_helper_conditional_fields_features_rebuild_alter(&$defaults) {
   foreach($defaults as $default_name => $default_info) {
     foreach($default_info['options']['value'] as $condition_name => $condition_info) {
-      $term = entity_uuid_load('taxonomy_term', array($condition_info['uuid']));
-      foreach($term as $term_instance) {
-        $defaults[$default_name]['options']['value'][$condition_name]['tid'] = $term_instance->tid;
+      $terms = entity_uuid_load('taxonomy_term', array($condition_info['uuid']));
+      if ($term = array_shift($terms)) {
+        $defaults[$default_name]['options']['value'][$condition_name]['tid'] = $term->tid;
         unset($defaults[$default_name]['options']['value'][$condition_name]['uuid']);
       }
     }
@@ -93,7 +92,6 @@ function uuid_features_helper_conditional_fields_features_rebuild_alter(&$defaul
 /**
  * Implements hook_conditional_fields_features_export_render_alter().
  */
-
 function uuid_features_helper_conditional_fields_features_export_render_alter(&$info) {
   foreach($info['dependents'] as $field_name => $field_info) {
     foreach($field_info as $field_reference_id => $field_reference_info) {
